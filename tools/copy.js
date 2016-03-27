@@ -17,6 +17,8 @@ async function copyTask() {
     copy('src/index.html', 'build/index.tmp'),
     copy('src/images', 'build/images'),
     copy('node_modules/bootstrap-sass/assets/fonts/bootstrap', 'build/fonts'),
+    copy('node_modules/rythm.js/rythm.js', 'build/rythm.js'),
+    copy('node_modules/rythm.js/samples/rythmC.mp3', 'build/rythm.mp3'),
   ]);
 
   replace({

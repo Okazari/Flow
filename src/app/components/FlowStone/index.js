@@ -6,16 +6,16 @@ export default class FlowStone extends Component {
     
     render() {
         return (
-            <div className="stone-wrapper">
-                <div onClick={event => this.props.onclick(event, this.props.type)} className={"stone stone-"+this.props.type}>
-                </div>
+            <div style={{top:this.props.stone.y*55, left:this.props.stone.x*55}} 
+                 onMouseDown={event => this.props.onSelect(event, this.props.stone)}
+                 className={"stone stone-"+this.props.stone.value}>
             </div>
         );
     }
     
 }
 
-FlowStone.propTypes  = {
-    type: PropTypes.number.isRequired,
-    onclick: PropTypes.func.isRequired
+FlowStone.propTypes  = {    
+    stone: PropTypes.object.isRequired,
+    onSelect: PropTypes.func.isRequired
 }
