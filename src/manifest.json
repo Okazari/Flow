@@ -1,0 +1,66 @@
+{
+  "lang": "en",
+  "short_name": "Flow",
+  "name": "Flow - match in rythm",
+  "icons": [
+    {
+      "src": "images/favicons/half-note-stem-facing-down-16-92983.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-24-92983.png",
+      "sizes": "24x24",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-32-92983.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-48-92983.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-57-92983.png",
+      "sizes": "57x57",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-64-92983.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-72-92983.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-114-92983.png",
+      "sizes": "114x114",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-120-92983.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-144-92983.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/half-note-stem-facing-down-152-92983.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone",
+  "start_url": "index.html?launcher=true",
+  "theme_color": "#2196F3",
+  "background_color": "#2196F3"
+}
