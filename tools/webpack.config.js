@@ -24,7 +24,6 @@ const GLOBALS = {
 
 const SASS_INCLUDES_PATHS = [
   ...bourbon.includePaths,
-  'node_modules/bootstrap-sass/assets/stylesheets',
   'node_modules/normalize.css',
   'node_modules/mathsass/dist'
 ];
