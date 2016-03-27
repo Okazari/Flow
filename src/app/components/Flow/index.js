@@ -8,7 +8,8 @@ export default class Flow extends Component {
     constructor(){
         super();
         this.state = {
-            gameMap : [[1,2,1,1,2],[1,3,2,3,2],[1,3,2,2,3],[1,1,2,3,3],[1,2,2,3,1]]
+            gameMap : this.getRandomMap(),
+            selectedStone: {}
         }
         console.log(this.state.columns);
     }
@@ -26,14 +27,53 @@ export default class Flow extends Component {
         return randomMap;
     }
     
-    renderColumns(elements, key){
-        return (
-            <FlowColumn key={key} elements={elements}>
-            </FlowColumn>
-            )
+    swapStone(gameMap, stone1, stone2){
+        /*console.log(gameMap);
+        console.log(stone1);
+        console.log(stone2);*/
+        let newMap = gameMap.map(function(column, columnIndex){
+            return column;
+        });
+        gameMap[stone1.x][stone1.y] = stone2.value
+        gameMap[stone2.x][stone2.y] = stone1.value;
+        return gameMap;
     }
     
+    
+    
     render() {
+        
+        const selectStone = (event, stoneIndexX, stoneIndexY, value) => {
+            if(this.state.selectedStone.value){
+                console.log(this.state.selectedStone);
+                let stoneToSwap = {
+                    x: stoneIndexX,
+                    y: stoneIndexY,
+                    value: value
+                }
+                let newGameMap = this.swapStone(this.state.gameMap, this.state.selectedStone, stoneToSwap)
+                this.setState({
+                    selectedStone: {},
+                    gameMap: newGameMap
+                })
+            }else{
+                this.setState({
+                    selectedStone:{
+                        x: stoneIndexX,
+                        y: stoneIndexY,
+                        value: value
+                    }
+                })    
+            }
+        }
+        
+        const renderColumns = (elements, key) => {
+            return (
+                <FlowColumn key={key} elements={elements} onClickElement={(event,indexX, value) => selectStone(event, key, indexX, value)}>
+                </FlowColumn>
+                )
+        }  
+        
         const randomize = () => {
             this.setState({
                 gameMap : this.getRandomMap()
@@ -43,7 +83,7 @@ export default class Flow extends Component {
         return (
             <div>
                 <div className="flow-container">
-                    {this.state.gameMap.map(this.renderColumns)}
+                    {this.state.gameMap.map(renderColumns)}
                 </div>
                 <button onClick={randomize}>Randomize</button>
             </div>

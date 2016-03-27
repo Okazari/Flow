@@ -5,17 +5,18 @@ import './index.scss';
 
 export default class FlowColumns extends Component {
     
-    renderStones(stoneType, key){
+    render() {
+        
+        const renderStones = (stoneType, key) => {
         return (
-            <FlowStone key={key} type={stoneType}>
+            <FlowStone key={key} type={stoneType} onclick={(event, value) => this.props.onClickElement(event, key, value)}>
             </FlowStone>
             )
-    }
-    
-    render() {
+        }
+        
         return (
             <div className="flow-column">
-            {this.props.elements.map(this.renderStones)}
+            {this.props.elements.map(renderStones)}
             </div>
         );
     }
@@ -23,5 +24,6 @@ export default class FlowColumns extends Component {
 }
 
 FlowColumns.propTypes  = {
-    elements: PropTypes.array.isRequired
+    elements: PropTypes.array.isRequired,
+    onClickElement : PropTypes.func.isRequired
 }
