@@ -12,7 +12,12 @@ export default class Flow extends Component {
             gameMap : this.getRandomMap(),
             selectedStone: {}
         }
-        console.log(this.state.columns);
+    }
+    
+    findStone(map,x,y){ 
+        return map.filter(function(element){
+            return x === element.x && y === element.y;
+        })[0];
     }
     
     startMusic(){
@@ -25,6 +30,7 @@ export default class Flow extends Component {
         rythm.addRythm('stone-1','size',0,10);
         rythm.addRythm('stone-2','size',150,40);
         rythm.addRythm('stone-3','size',500,100);
+        rythm.addRythm('stone-4','size',0,600);
         rythm.start();
     }
     
@@ -36,7 +42,7 @@ export default class Flow extends Component {
                 randomMap.push({
                     x:x,
                     y:y,
-                    value: parseInt((Math.random()*3)+1)
+                    value: parseInt((Math.random()*4)+1)
                 });
             }
             
@@ -62,7 +68,6 @@ export default class Flow extends Component {
     render() {
         
         const selectStone = (event, stone) => {
-            console.log("Selecting stone", stone);
             if(this.state.selectedStone.value){
                 let newGameMap = this.state.gameMap;
                 if((Math.abs(stone.x - this.state.selectedStone.x) + Math.abs(stone.y - this.state.selectedStone.y)) == 1){
