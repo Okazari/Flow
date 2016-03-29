@@ -25,22 +25,4 @@
     &:hover{
         opacity:0.5;
     }
-
-    &-enter {
-      opacity: 0.01;
-    }
-
-    &-enter.stone-enter-active {
-      opacity: 1;
-      transition: opacity 1000ms ease-in;
-    }
-
-    &-leave {
-      opacity: 1;
-    }
-
-    &-leave.stone-leave-active {
-      opacity: 0.01;
-      transition: opacity 1000ms ease-in;
-    }
 }
