@@ -58,6 +58,7 @@
     "lodash.merge": "^4.3.2",
     "normalize.css": "^4.0.0",
     "react": "^0.14.7",
+    "react-addons-css-transition-group": "^0.14.7",
     "react-dom": "^0.14.7",
     "rythm.js": "^1.2.2",
     "whatwg-fetch": "^0.11.0"

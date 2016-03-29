@@ -8,7 +8,8 @@ export default class Flow extends Component {
     constructor(){
         super();
         //this.startMusic();
-        this.directions = ['LEFT','DOWN','RIGHT','UP']
+        this.directions = ['LEFT','UP','RIGHT','DOWN']
+        this.size = 6;
         this.state = {
             gameMap : this.getRandomMap(),
             selectedStone: {}
@@ -41,7 +42,7 @@ export default class Flow extends Component {
 
     getRandomMap() {
         let randomMap = [];
-        let size = 6;
+        let size = this.size;
         for(let x = 0; x < size; x++){
             for(let y = 0; y < size; y++){
                 randomMap.push({
@@ -55,10 +56,49 @@ export default class Flow extends Component {
         return randomMap;
     }
 
-    getMatchs(map,stone, direction){
-      map.forEach(stone => {
-
+    getMatchs(map, stone){
+      this.directions.forEach(direction => {
+        console.log(direction, this.getMatchsByDirection(map, stone, direction));
       })
+    }
+
+    getMatchsByDirection(map, stone, direction){
+      if(direction === 'LEFT'){
+        if(stone.x > 0){
+          let leftStone = this.findStone(map, stone.x-1, stone.y);
+          if(leftStone.value === stone.value){
+            return 1 + this.getMatchsByDirection(map, leftStone, direction);
+          }
+        }
+        return 0;
+      }
+      else if(direction === 'RIGHT'){
+        if(stone.x < this.size-1){
+          let rightStone = this.findStone(map, stone.x+1, stone.y);
+          if(rightStone.value === stone.value){
+            return 1 + this.getMatchsByDirection(map, rightStone, direction);
+          }
+        }
+        return 0;
+      }
+      else if(direction === 'UP'){
+        if(stone.y > 0){
+          let upStone = this.findStone(map, stone.x, stone.y-1);
+          if(upStone.value === stone.value){
+            return 1 + this.getMatchsByDirection(map, upStone, direction);
+          }
+        }
+        return 0;
+      }
+      else if(direction === 'DOWN'){
+        if(stone.y < this.size-1){
+          let downStone = this.findStone(map, stone.x, stone.y+1);
+          if(downStone.value === stone.value){
+            return 1 + this.getMatchsByDirection(map, downStone, direction);
+          }
+        }
+        return 0;
+      }
     }
 
     swapStone(gameMap, stone1, stone2){
@@ -115,7 +155,7 @@ export default class Flow extends Component {
 
         const renderStone = (stone, key) => {
             return (
-                <FlowStone key={key} stone={stone} onSelect={(e,x,y,value) => removeStone(e, stone)}>
+                <FlowStone key={key} stone={stone} onSelect={(e,x,y,value) => this.getMatchs(this.state.gameMap, stone)}>
                 </FlowStone>
             )
         }
