@@ -10,10 +10,76 @@ export default class Flow extends Component {
         //this.startMusic();
         this.directions = ['LEFT','UP','RIGHT','DOWN']
         this.size = 6;
+        this.stonesToRemove = [];
+        this.dirtyStones = [];
+
+        this.lock = true;
         this.state = {
             gameMap : this.getRandomMap(),
             selectedStone: {}
         }
+        this.lock = false;
+    }
+
+    componentDidMount(){
+      this.tick();
+    }
+
+    tick(){
+      if(!this.lock){
+        let stone = this.dirtyStones.shift()
+        while(stone){
+          let matchs = this.getMatchs(this.state.gameMap, stone, stone.value);
+          if(matchs.LEFT.length + matchs.RIGHT.length >= 2){
+            if(this.stonesToRemove.indexOf(stone) === -1){
+              this.stonesToRemove.push(stone)
+            }
+            matchs.LEFT.forEach(match => {
+              if(this.stonesToRemove.indexOf(match) === -1){
+                this.stonesToRemove.push(match)
+              }
+            })
+            matchs.RIGHT.forEach(match => {
+              if(this.stonesToRemove.indexOf(match) === -1){
+                this.stonesToRemove.push(match)
+              }
+            })
+          }
+          if(matchs.UP.length + matchs.DOWN.length >= 2){
+            if(this.stonesToRemove.indexOf(stone) === -1){
+              this.stonesToRemove.push(stone)
+            }
+            matchs.UP.forEach(match => {
+              if(this.stonesToRemove.indexOf(match) === -1){
+                this.stonesToRemove.push(match)
+              }
+            })
+            matchs.DOWN.forEach(match => {
+              if(this.stonesToRemove.indexOf(match) === -1){
+                this.stonesToRemove.push(match)
+              }
+            })
+          }
+          stone = this.dirtyStones.shift();
+        }
+        if(this.stonesToRemove.length > 0){
+          let removedStonesPositions = this.stonesToRemove.map(stone => {
+            return {x:stone.x, y:stone.y};
+          });
+          let newGameMap = this.removeStones(this.state.gameMap,this.stonesToRemove);
+          this.stonesToRemove = []
+          this.setState({
+            gameMap: newGameMap,
+          })
+          setTimeout(() =>{
+            newGameMap = this.gravity(newGameMap, removedStonesPositions);
+            this.setState({
+              gameMap: newGameMap
+            })
+            setTimeout(() => this.tick(), 500);
+          }, 100);
+        }
+      }
     }
 
     findStone(map,x,y){
@@ -45,62 +111,118 @@ export default class Flow extends Component {
         let size = this.size;
         for(let x = 0; x < size; x++){
             for(let y = 0; y < size; y++){
-                randomMap.push({
-                    x:x,
-                    y:y,
-                    value: this.getRandomStoneValue()
-                });
+              let newStone = {
+                  x:x,
+                  y:y,
+                  value: this.getRandomStoneValue()
+              };
+              randomMap.push(newStone);
+              this.dirtyStones.push(newStone);
             }
 
         }
         return randomMap;
     }
 
-    getMatchs(map, stone){
+    getMatchs(map, stone, value){
       let result = {}
       this.directions.forEach(direction => {
-        result[direction] = this.getMatchsByDirection(map, stone, direction);
+        result[direction] = this.getMatchsByDirection(map, stone, direction, value);
       })
       return result;
     }
 
-    getMatchsByDirection(map, stone, direction){
+    getMatchsByDirection(map, stone, direction, value){
       if(direction === 'LEFT'){
         if(stone.x > 0){
           let leftStone = this.findStone(map, stone.x-1, stone.y);
-          if(leftStone.value === stone.value){
-            return 1 + this.getMatchsByDirection(map, leftStone, direction);
+          if(leftStone && leftStone.value === stone.value){
+            return [leftStone].concat(this.getMatchsByDirection(map, leftStone, direction, value));
           }
         }
-        return 0;
+        return [];
       }
       else if(direction === 'RIGHT'){
         if(stone.x < this.size-1){
           let rightStone = this.findStone(map, stone.x+1, stone.y);
-          if(rightStone.value === stone.value){
-            return 1 + this.getMatchsByDirection(map, rightStone, direction);
+          if(rightStone && rightStone.value === stone.value){
+            return [rightStone].concat(this.getMatchsByDirection(map, rightStone, direction));
           }
         }
-        return 0;
+        return [];
       }
       else if(direction === 'UP'){
         if(stone.y > 0){
           let upStone = this.findStone(map, stone.x, stone.y-1);
-          if(upStone.value === stone.value){
-            return 1 + this.getMatchsByDirection(map, upStone, direction);
+          if(upStone && upStone.value === stone.value){
+            return [upStone].concat(this.getMatchsByDirection(map, upStone, direction));
           }
         }
-        return 0;
+        return [];
       }
       else if(direction === 'DOWN'){
         if(stone.y < this.size-1){
           let downStone = this.findStone(map, stone.x, stone.y+1);
-          if(downStone.value === stone.value){
-            return 1 + this.getMatchsByDirection(map, downStone, direction);
+          if(downStone && downStone.value === stone.value){
+            return [downStone].concat(this.getMatchsByDirection(map, downStone, direction));
           }
         }
-        return 0;
+        return [];
       }
+    }
+
+    gravity(gameMap, deletedStonesPositions){
+      deletedStonesPositions.sort((a,b)=>{
+        if(a.x < b.x){
+          return -1;
+        }else if(a.x > b.x){
+          return 1;
+        }else if(a.y < b.y){
+          return  -1;
+        }else if(a.y > b.y){
+          return 1;
+        }else{
+          return 0;
+        }
+      })
+      deletedStonesPositions.forEach(stone => {
+        gameMap.forEach(otherStone =>{
+          if(otherStone.x === stone.x && otherStone.y <= stone.y){
+            otherStone.y++;
+            if(this.dirtyStones.indexOf(otherStone) === -1){
+              this.dirtyStones.push(otherStone);
+            }
+          }
+        })
+      })
+      return gameMap;
+    }
+
+    removeStones(gameMap, stonesToDelete){
+        stonesToDelete.forEach(stone => {
+          delete gameMap[gameMap.indexOf(stone)];
+          let newStone = {
+            x:stone.x,
+            y:this.getAddY(gameMap,stone.x),
+            value:this.getRandomStoneValue()
+          };
+          this.dirtyStones.push(newStone);
+          gameMap.push(newStone);
+
+        })
+        return gameMap;
+    }
+
+    getAddY(gameMap, x){
+      let y = 0;
+      gameMap.forEach(stone=>{
+        if(stone.x === x){
+          if(y >= stone.y){
+            y = stone.y;
+          }
+        }
+      })
+      return y - 1
     }
 
     swapStone(gameMap, stone1, stone2){
@@ -110,59 +232,38 @@ export default class Flow extends Component {
         stone1.y = stone2.y;
         stone2.x = tmpX;
         stone2.y = tmpY;
+        this.dirtyStones.push(stone1,stone2);
         return gameMap;
     }
 
 
-
     render() {
 
-        const removeStone = (map, stone) => {
-            delete map[map.indexOf(stone)];
-            map.push({x:stone.x,
-                      y:-1,
-                      value:this.getRandomStoneValue()});
-            map.forEach(otherStone =>{
-              if(otherStone.x === stone.x && otherStone.y < stone.y){
-                otherStone.y++;
-              }
-            })
-            return map;
-        }
-
-        const selectStone = (event, stone) => {
+        const selectStone = (stone) => {
+            this.lock = true;
             if(this.state.selectedStone.value){
                 let newGameMap = this.state.gameMap;
                 if((Math.abs(stone.x - this.state.selectedStone.x) + Math.abs(stone.y - this.state.selectedStone.y)) == 1){
                     newGameMap = this.swapStone(this.state.gameMap, this.state.selectedStone, stone)
                 }
                 this.setState({
-                  gameMap: newGameMap
+                  gameMap: newGameMap,
+                  selectedStone: {}
                 })
-                setTimeout(() => {
-                  let direction = this.getMatchs(newGameMap,stone);
-                  if(direction.LEFT + direction.UP + direction.DOWN + direction.RIGHT >= 2){
-                    newGameMap = removeStone(newGameMap,stone);
-                  }
-                  direction = this.getMatchs(newGameMap, this.state.selectedStone);
-                  if(direction.LEFT + direction.UP + direction.DOWN + direction.RIGHT >= 2){
-                    newGameMap = removeStone(newGameMap,this.state.selectedStone);
-                  }
-                  this.setState({
-                      selectedStone: {},
-                      gameMap: newGameMap
-                  });
-                },300)
+                setTimeout(()=>{
+                  this.tick()
+                },300);
             }else{
                 this.setState({
                     selectedStone:stone
                 })
             }
+            this.lock = false;
         }
 
         const renderStone = (stone, key) => {
             return (
-                <FlowStone key={key} stone={stone} onSelect={(e,x,y,value) => selectStone(e,stone)}>
+                <FlowStone key={key} stone={stone} onSelect={(e,x,y,value) => selectStone(stone)}>
                 </FlowStone>
             )
         }
