@@ -9,7 +9,7 @@ export default class Flow extends Component {
         super();
         //this.startMusic();
         this.directions = ['LEFT','UP','RIGHT','DOWN']
-        this.size = 6;
+        this.size = 8;
         this.stonesToRemove = [];
         this.dirtyStones = [];
 
@@ -26,60 +26,62 @@ export default class Flow extends Component {
     }
 
     tick(){
-      if(!this.lock){
-        let stone = this.dirtyStones.shift()
-        while(stone){
-          let matchs = this.getMatchs(this.state.gameMap, stone, stone.value);
-          if(matchs.LEFT.length + matchs.RIGHT.length >= 2){
-            if(this.stonesToRemove.indexOf(stone) === -1){
-              this.stonesToRemove.push(stone)
-            }
-            matchs.LEFT.forEach(match => {
-              if(this.stonesToRemove.indexOf(match) === -1){
-                this.stonesToRemove.push(match)
-              }
-            })
-            matchs.RIGHT.forEach(match => {
-              if(this.stonesToRemove.indexOf(match) === -1){
-                this.stonesToRemove.push(match)
-              }
-            })
+      let stone = this.dirtyStones.shift()
+      while(stone){
+        let matchs = this.getMatchs(this.state.gameMap, stone, stone.value);
+        if(matchs.LEFT.length + matchs.RIGHT.length >= 2){
+          if(this.stonesToRemove.indexOf(stone) === -1){
+            this.stonesToRemove.push(stone)
           }
-          if(matchs.UP.length + matchs.DOWN.length >= 2){
-            if(this.stonesToRemove.indexOf(stone) === -1){
-              this.stonesToRemove.push(stone)
+          matchs.LEFT.forEach(match => {
+            if(this.stonesToRemove.indexOf(match) === -1){
+              this.stonesToRemove.push(match)
             }
-            matchs.UP.forEach(match => {
-              if(this.stonesToRemove.indexOf(match) === -1){
-                this.stonesToRemove.push(match)
-              }
-            })
-            matchs.DOWN.forEach(match => {
-              if(this.stonesToRemove.indexOf(match) === -1){
-                this.stonesToRemove.push(match)
-              }
-            })
-          }
-          stone = this.dirtyStones.shift();
-        }
-        if(this.stonesToRemove.length > 0){
-          let removedStonesPositions = this.stonesToRemove.map(stone => {
-            return {x:stone.x, y:stone.y};
-          });
-          let newGameMap = this.removeStones(this.state.gameMap,this.stonesToRemove);
-          this.stonesToRemove = []
-          this.setState({
-            gameMap: newGameMap,
           })
-          setTimeout(() =>{
-            newGameMap = this.gravity(newGameMap, removedStonesPositions);
-            this.setState({
-              gameMap: newGameMap
-            })
-            setTimeout(() => this.tick(), 500);
-          }, 100);
+          matchs.RIGHT.forEach(match => {
+            if(this.stonesToRemove.indexOf(match) === -1){
+              this.stonesToRemove.push(match)
+            }
+          })
         }
+        if(matchs.UP.length + matchs.DOWN.length >= 2){
+          if(this.stonesToRemove.indexOf(stone) === -1){
+            this.stonesToRemove.push(stone)
+          }
+          matchs.UP.forEach(match => {
+            if(this.stonesToRemove.indexOf(match) === -1){
+              this.stonesToRemove.push(match)
+            }
+          })
+          matchs.DOWN.forEach(match => {
+            if(this.stonesToRemove.indexOf(match) === -1){
+              this.stonesToRemove.push(match)
+            }
+          })
+        }
+        stone = this.dirtyStones.shift();
       }
+      if(this.stonesToRemove.length > 0){
+        let removedStonesPositions = this.stonesToRemove.map(stone => {
+          return {x:stone.x, y:stone.y};
+        });
+        let newGameMap = this.removeStones(this.state.gameMap,this.stonesToRemove);
+        this.stonesToRemove = []
+        this.setState({
+          gameMap: newGameMap,
+        })
+        setTimeout(() =>{
+          newGameMap = this.gravity(newGameMap, removedStonesPositions);
+          this.setState({
+            gameMap: newGameMap
+          })
+
+          setTimeout(() => this.tick(), 300);
+        }, 100);
+      }else{
+        this.clickTrigger = false;
+      }
+
     }
 
     findStone(map,x,y){
@@ -92,7 +94,7 @@ export default class Flow extends Component {
         let rythm = new Rythm();
         rythm.setMusic('rythm.mp3');
         rythm.startingScale  = 0.90;
-        rythm.pulseRatio  = 0.10;
+        rythm.pulseRatio  = 0.20;
         rythm.maxValueHistory = 50;
         rythm.setGain(0.05);
         rythm.addRythm('stone-1','size',0,10);
@@ -240,7 +242,6 @@ export default class Flow extends Component {
     render() {
 
         const selectStone = (stone) => {
-            this.lock = true;
             if(this.state.selectedStone.value){
                 let newGameMap = this.state.gameMap;
                 if((Math.abs(stone.x - this.state.selectedStone.x) + Math.abs(stone.y - this.state.selectedStone.y)) == 1){
@@ -250,15 +251,15 @@ export default class Flow extends Component {
                   gameMap: newGameMap,
                   selectedStone: {}
                 })
-                setTimeout(()=>{
-                  this.tick()
-                },300);
+                if(!this.clickTrigger){
+                  this.clickTrigger = true;
+                  setTimeout(() => {this.tick()}, 4000);
+                }
             }else{
                 this.setState({
                     selectedStone:stone
                 })
             }
-            this.lock = false;
         }
 
         const renderStone = (stone, key) => {
