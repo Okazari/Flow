@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
 import FlowStone from "../FlowStone";
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import './index.scss';
 
 export default class Flow extends Component {
@@ -16,7 +17,8 @@ export default class Flow extends Component {
         this.lock = true;
         this.state = {
             gameMap : this.getRandomMap(),
-            selectedStone: {}
+            selectedStone: {},
+            score:0
         }
         this.lock = false;
     }
@@ -25,6 +27,12 @@ export default class Flow extends Component {
       this.tick();
     }
 
+    toRemove(stone){
+        if(this.stonesToRemove.indexOf(stone) === -1){
+            this.stonesToRemove.push(stone)
+        }
+    }
+    
     tick(){
       let stone = this.dirtyStones.shift()
       while(stone){
@@ -33,35 +41,20 @@ export default class Flow extends Component {
           if(this.stonesToRemove.indexOf(stone) === -1){
             this.stonesToRemove.push(stone)
           }
-          matchs.LEFT.forEach(match => {
-            if(this.stonesToRemove.indexOf(match) === -1){
-              this.stonesToRemove.push(match)
-            }
-          })
-          matchs.RIGHT.forEach(match => {
-            if(this.stonesToRemove.indexOf(match) === -1){
-              this.stonesToRemove.push(match)
-            }
-          })
+          matchs.LEFT.forEach(this.toRemove.bind(this));
+          matchs.RIGHT.forEach(this.toRemove.bind(this));
         }
         if(matchs.UP.length + matchs.DOWN.length >= 2){
           if(this.stonesToRemove.indexOf(stone) === -1){
             this.stonesToRemove.push(stone)
           }
-          matchs.UP.forEach(match => {
-            if(this.stonesToRemove.indexOf(match) === -1){
-              this.stonesToRemove.push(match)
-            }
-          })
-          matchs.DOWN.forEach(match => {
-            if(this.stonesToRemove.indexOf(match) === -1){
-              this.stonesToRemove.push(match)
-            }
-          })
+          matchs.UP.forEach(this.toRemove.bind(this))
+          matchs.DOWN.forEach(this.toRemove.bind(this))
         }
         stone = this.dirtyStones.shift();
       }
       if(this.stonesToRemove.length > 0){
+        let littleScore = this.stonesToRemove.length;
         let removedStonesPositions = this.stonesToRemove.map(stone => {
           return {x:stone.x, y:stone.y};
         });
@@ -73,7 +66,8 @@ export default class Flow extends Component {
         setTimeout(() =>{
           newGameMap = this.gravity(newGameMap, removedStonesPositions);
           this.setState({
-            gameMap: newGameMap
+            gameMap: newGameMap,
+            score: this.state.score + littleScore
           })
 
           setTimeout(() => this.tick(), 300);
@@ -121,7 +115,6 @@ export default class Flow extends Component {
               randomMap.push(newStone);
               this.dirtyStones.push(newStone);
             }
-
         }
         return randomMap;
     }
@@ -278,9 +271,15 @@ export default class Flow extends Component {
         return (
             <div>
                 <div className="flow-container">
-                    {this.state.gameMap.map(renderStone)}
+                    <ReactCSSTransitionGroup transitionName="stone" transitionLeaveTimeout={300}>
+                        {this.state.gameMap.map(renderStone)}
+                    </ReactCSSTransitionGroup>
+                </div>
+                <div className="score-pannel">
+                    Score : {this.state.score}
                 </div>
             </div>
+                
         );
     }
 
